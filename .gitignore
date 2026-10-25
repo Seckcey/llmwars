@@ -1,0 +1,24 @@
+# Secrets: never commit API keys
+.env
+.env.*
+!.env.example
+
+# Dependencies and build output
+node_modules/
+dist/
+build/
+.next/
+.turbo/
+coverage/
+
+# Match logs and local data (large; published separately)
+runs/
+*.jsonl
+*.jsonl.gz
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
