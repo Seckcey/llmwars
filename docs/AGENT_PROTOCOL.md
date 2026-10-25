@@ -209,7 +209,14 @@ Model snapshot, inference provider, parameters, prompt hash and full prompt (sto
 
 ## 12. Provider adapter notes
 
-- **OpenRouter** for breadth while prototyping (one key, one bill). For open-weight models, pin a single inference provider and precision. Different hosts can serve different quantizations, which changes behavior.
-- **Direct APIs** (Anthropic, OpenAI, Google, DeepSeek, Moonshot, and others) for ranked play: exact snapshots, prompt caching, and batch discounts.
+- **OpenRouter** for breadth while prototyping (one key, one bill). By default it load-balances each model across hosts and precisions. For any match that counts:
+  - pin one host (`provider.order` plus `allow_fallbacks: false`);
+  - filter `quantizations`;
+  - never pass a `models` fallback list, because it can silently swap the contestant on errors or refusals;
+  - avoid moving `-latest` aliases.
+
+  Host quality really does differ. In Moonshot's own vendor test, tool-call schema accuracy for one of its models ranged from about 83% to 100% across hosts ([K2 Vendor Verifier](https://github.com/MoonshotAI/K2-Vendor-Verifier)).
+- **Direct APIs** for ranked play: exact dated snapshots, prompt caching, and batch discounts. Call OpenAI directly in any case (see the gateway rule in [`PLAN.md`](PLAN.md) §14).
 - Use native tool calling or structured outputs with strict JSON Schema where supported. For models without them, fall back to JSON extraction plus validation.
-- Record whatever reasoning output each provider exposes, but never feed it to the opponent.
+- **Reasoning exposure varies.** Some providers return only opt-in summaries, some return encrypted reasoning, and some (several open-weight models) return full reasoning text. Show spectators only what each provider exposes. Never try to extract hidden reasoning, which some terms prohibit, and never feed one side's reasoning to the other.
+- Log the serving host and precision with every call, and publish them per match.

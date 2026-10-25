@@ -6,7 +6,7 @@ _Planning draft v0.1 · October 2026_
 
 1. **One engine; LLMs only decide.** A deterministic, seeded simulation engine adjudicates everything. Models submit orders and never compute outcomes. This is the decision that makes results fair, reproducible, and believable.
 2. **Two products on that engine.** **Arena** is rated, reproducible matches with a public leaderboard. **Broadcast** is replays, maps, war-room transcripts, and after-action reports for YouTube, TikTok, and Twitch. Build Arena first; Broadcast is a presentation layer over recorded Arena matches.
-3. **Annual turns in peacetime, weekly turns in war.** A 20-year campaign is about 20 strategic decisions plus 10–20 wartime decisions per side, roughly 30–40 model calls. That's how you "simulate many years in a short amount of time."
+3. **Annual turns in peacetime, weekly turns in war.** A 20-year campaign is about 20 strategic decisions plus 10–20 wartime decisions per side, roughly 30–40 model calls. That's how you "simulate many years in a short amount of time": a match takes roughly 20–90 minutes, and API fees run from under $1 to about $60 depending on model tier (§10).
 4. **Fair by construction.** Simultaneous turns, identical prompts and budgets, seeded randomness, each pairing played on several seeds with sides swapped (like playing both colors in chess), and scripted baseline bots that every model must beat.
 5. **Realism comes from constraints, not stat sheets.** Lead times, operating costs, crew pipelines, shipyard and munitions capacity, readiness, cost overruns, and fog of war are what make real force planning hard. The equipment is real (a 2026 catalog with public, budget-level costs); combat ratings are abstract.
 6. **Ranked play on fictional mirror nations; exhibition play with nation packs.** In ranked play both sides get identical nations and catalogs. In exhibition matches each lab's model commands its home country's real-world equipment catalog (US pack vs. China pack) in a fictionalized theater.
@@ -19,7 +19,7 @@ _Planning draft v0.1 · October 2026_
 
 What sets it apart from existing LLM game arenas (see §13):
 
-- **Long horizon.** Decisions compound over decades. A carrier ordered in Year 2 shows up around Year 9 and costs money every year after that.
+- **Long horizon.** Decisions compound over decades. A carrier ordered in Year 2 shows up around Year 12 (CBO puts Ford-class build times at 10–11 years) and costs money every year after that.
 - **Resource allocation under uncertainty.** This is the core skill of real strategy, and current benchmarks barely measure it.
 - **Multi-domain realism.** Land, sea, air, space, cyber, industry, people, and money.
 - **Measurable safety-relevant behavior.** Escalation, deception, and manipulation resistance, scored from engine data rather than impressions.
@@ -93,9 +93,11 @@ Full rules: [`GAME_DESIGN.md`](GAME_DESIGN.md). Model interface: [`AGENT_PROTOCO
 
 | Pack | Models | Character |
 | --- | --- | --- |
-| **US pack** | Anthropic (Claude), OpenAI (GPT), Google (Gemini), xAI (Grok), Meta (Llama) | Expensive, high-end systems; carriers, stealth, submarines; global logistics; constrained shipbuilding |
-| **China pack** | DeepSeek, Moonshot (Kimi), Alibaba (Qwen), Zhipu (GLM), MiniMax | Massive shipbuilding capacity, lower unit costs, Rocket Force missiles and anti-access forces; fights close to home |
+| **US pack** | Anthropic (Claude), OpenAI (GPT), Google (Gemini), xAI (Grok), Meta | Expensive, high-end systems; carriers, stealth, submarines; global logistics; constrained shipbuilding |
+| **China pack** | DeepSeek, Moonshot (Kimi), Alibaba (Qwen), Zhipu / Z.ai (GLM), MiniMax | Massive shipbuilding capacity, lower unit costs, Rocket Force missiles and anti-access forces; fights close to home |
 | **Europe pack** (later) | Mistral | Mid-size, high-quality, alliance-dependent |
+
+Every model needs a license and usage-policy check before it joins the roster (§14). Some open-weight licenses prohibit military applications outright.
 
 **Same-country matchups** (Anthropic vs. OpenAI, DeepSeek vs. Kimi) play *Blue vs. Red*. One model commands its home pack (Blue). The other plays the opposing pack as the Red Team, the way real military wargames use an opposing force (OPFOR). Then they swap and replay.
 
@@ -108,7 +110,7 @@ Exhibition results are reported separately from ranked ratings. Pack asymmetries
 | Simultaneous turns | No first-mover advantage; both sides' orders resolve together |
 | Side swap × seeds | Each pairing plays both sides on 3–5 seeds per season (6–10 games) |
 | Identical inputs | Same system prompt, rules brief, tool schema, output limits, timeouts, and retries for every model; no per-model prompt tuning in ranked play |
-| Pinned versions | Exact model snapshot ID and inference provider recorded per match; open-weight models pinned to one provider and precision |
+| Pinned versions | Exact model snapshot and serving host recorded and published per match; open-weight models pinned to one host and precision; router fallbacks disabled so a contestant can't be silently swapped |
 | Blind ranked play | Models aren't told who their opponent is; nation names are randomized per match |
 | Baseline bots | Non-LLM generals: *Random-Legal*, *Balanced* (real-world budget split), *Navy-First*, *Missile A2/AD*, *Greedy* (max combat power per dollar). Every model's win rate against them is published |
 | Rules comprehension quiz | About 15 auto-generated questions on the rules before each season; separates "didn't understand" from "bad strategy" |
@@ -230,8 +232,45 @@ pnpm runner replay --match <match-id> --verify
 
 ## 10. Cost model
 
-<!-- RESEARCH: cost model -->
-_Pending: being filled in from current API pricing research._
+**Token budget per turn (estimate):**
+
+- About 15K tokens of static prefix: system prompt, rules, and catalog, prompt-cached after the first call.
+- About 10K dynamic tokens: SITREP, notebook, and inbox.
+- About 3K visible output, plus about 12K of reasoning for reasoning models.
+
+An Arms Race match is 20 turns per side; a Flashpoint match is about 35.
+
+**Price tiers** (list prices per 1M tokens, input / output, as reported in October 2026; verify before each season):
+
+| Tier | Typical price | Who's there (by lab) |
+| --- | --- | --- |
+| Premium flagship | $3–10 / $15–50 | Top tiers from Anthropic and OpenAI; Moonshot's flagship |
+| Mid frontier | $1.25–4 / $4–20 | Default tiers from Anthropic, OpenAI, Google, xAI, and Meta; flagships from DeepSeek, Alibaba, Zhipu, and Mistral |
+| Budget | $0.10–0.75 / $0.20–3.75 | Small tiers from most labs, including DeepSeek, MiniMax, Alibaba, Zhipu, and Mistral |
+
+**Estimated API cost per side** (cached input at about 10% of the input price):
+
+| Tier (example price) | Arms Race (20 turns) | Flashpoint (~35 turns) |
+| --- | --- | --- |
+| Premium ($10 / $50) | ≈ $17 | ≈ $30 |
+| Mid ($4 / $20) | ≈ $7 | ≈ $12 |
+| Mid ($2 / $10) | ≈ $3.50 | ≈ $6 |
+| Budget ($0.30 / $1.20) | ≈ $0.45 | ≈ $0.75 |
+
+A match costs both sides added together. Output and reasoning tokens drive most of the cost, so reasoning-heavy settings can double these figures.
+
+**Season budgets (estimates)**
+
+- **MVP testing** (4 models, about 36 matches plus bot work): about $300–500.
+- **Season 1** (8 models, round robin, both sides × 3 seeds = 168 matches, half Arms Race and half Flashpoint): about $1,500–3,000 at list prices. The total depends mostly on how many premium-tier models are on the roster.
+
+**Ways to cut it**
+
+- Prompt caching on the static prefix (the biggest input saving).
+- Batch APIs (typically about 50% off) for ranked tournaments. Run all matches in lockstep and submit turn N of every match as one batch: slower (hours per round), much cheaper.
+- Off-peak discounts where offered (DeepSeek reportedly halves prices off-peak).
+- Blitz mode and budget-tier models for development and testing. Baseline bots cost nothing.
+- Hard caps per match, per tournament, and per day, enforced in the runner and backed by prepaid provider credits.
 
 ## 11. Roadmap
 
@@ -264,13 +303,49 @@ The timeline assumes one developer working with Claude Code. Treat the weeks as 
 
 ## 13. Prior art: what exists and where the gap is
 
-<!-- RESEARCH: prior art -->
-_Pending: being filled in from current research on existing LLM arenas and wargame studies._
+| Project | What it is | What we take from it |
+| --- | --- | --- |
+| **AI Diplomacy** (Every, June 2025; follow-up company Good Start Labs) | Seven frontier models play the board game Diplomacy with private negotiation, streamed on Twitch. OpenAI's o3 won mostly through deception; Claude Opus 4 cooperated and got exploited | Betrayal and honesty make great content. We should *measure* deception from engine data instead of only narrating it. [every.to/diplomacy](https://every.to/diplomacy) |
+| **Alpha Arena** (Nof1, from October 2025) | Six models trade real money live. In Season 1, Qwen3 Max won and DeepSeek placed second; all four US models lost money | Live stakes and a scoreboard drive attention, but there were few runs, heavy luck, and no replays. [ForkLog summary](https://forklog.com/en/four-out-of-six-ai-models-suffer-losses-in-trading-tournament/) |
+| **Kaggle Game Arena** (Google DeepMind + Kaggle, from August 2025) | A chess exhibition (o3 beat Grok 4 in the final), later poker and Werewolf, with a unified Bradley–Terry leaderboard and an open-source harness | Rigor and an open harness, but classic games only, run by a lab that also competes. [Google blog](https://blog.google/innovation-and-ai/models-and-research/google-deepmind/kaggle-game-arena-updates/), [GitHub](https://github.com/google-deepmind/game_arena) |
+| **Arena** (formerly LMArena) | Blind crowd votes and Bradley–Terry rankings; the de facto lab scoreboard, valued at $3.1B in October 2026 | Proof that a neutral leaderboard can be a business. [TechCrunch](https://techcrunch.com/2026/10/08/popular-ai-leaderboard-arena-nearly-doubles-valuation-to-3-1b-valuation-in-10-months/) |
+| **Vending-Bench** (Andon Labs) and **Project Vend** (Anthropic + Andon Labs), 2025–26 | Models run a simulated or real vending business over long periods. Every model had runs that derailed; the July 2026 leader (an Anthropic model) formed cartels and lied along the way | Long horizons expose drift and deception, so our 20-year matches should track coherence over time. [arXiv](https://arxiv.org/abs/2502.15840), [Anthropic](https://www.anthropic.com/research/project-vend-2) |
+| **Rivera et al.** (FAccT 2024) | Five LLMs as nation agents in a scored wargame; all escalated unpredictably, with arms-race dynamics and rare nuclear use | The escalation index is worth publishing. [arXiv](https://arxiv.org/abs/2401.03408) |
+| **Lamparth et al.** (AIES 2024) | Expert humans vs. LLMs in a fictional US–China crisis; the LLMs were more aggressive and more sensitive to scenario wording | Human baselines and prompt-sensitivity tests matter. [AAAI](https://ojs.aaai.org/index.php/AIES/article/view/31681) |
+| **Payne, King's College London** (February 2026) | Three frontier models as nuclear-armed leaders across 21 crisis games. KCL reports tactical nuclear use in about 95% of games, sharper under deadlines (outlets word the figures differently) | Our nuclear rule and escalation index will draw attention, and deadline pressure is a variable worth testing. [arXiv](https://arxiv.org/abs/2602.14740), [KCL](https://www.kcl.ac.uk/news/artificial-intelligence-under-nuclear-pressure-first-large-scale-kings-study-reveals-how-ai-models-reason-and-escalate-under-crisis) |
+| **2025–26 research** | WARBENCH (136 historical scenarios), CivBench (Civilization V and VI), and a 2025 review of 223 AI-wargame studies | Strong academic interest, but no live, rated product. [WARBENCH](https://arxiv.org/abs/2603.21280), [review](https://arxiv.org/abs/2509.17192) |
+
+**Where the gap is**
+
+1. No public, continuously rated arena exists for budget-level and operational strategy with deterministic adjudication.
+2. Prior studies ran about 15–21 games. We can run hundreds of seeded, side-swapped games with confidence intervals and replays.
+3. Nobody publishes the inference host and quantization per match. We will.
+4. Behavior metrics (escalation, promise-keeping, deception, restraint under deadlines, long-horizon coherence) in a fictional theater that sidesteps real-world politics.
+5. A spectator layer, scripted and human baselines, and cost-normalized rankings.
 
 ## 14. Risks and compliance
 
-<!-- RESEARCH: risks -->
-_Pending: being filled in from current research on provider usage policies, terms, and regulations._
+_Not legal advice. Have a lawyer review before any monetized launch._ The policy findings below come from October 2026 research; re-check them at every season freeze.
+
+| Risk | What the sources say | Mitigation |
+| --- | --- | --- |
+| **Provider usage policies** | None mention wargames or simulations. Anthropic's updated policy (effective 12 Nov 2026) bars software "for the testing or operation of weapons or weapons functionalities of weapons systems, including targeting, fire control, or engagement." OpenAI bars "weapons development, procurement, or use" and "national security or intelligence purposes" without its approval. Google and xAI have general prohibited-use rules only | An abstract, fictional strategy game looks permitted. Keep it that way: no realistic targeting or fire-control mechanics, and no defense-customer use without provider approval. Sources: [Anthropic](https://www.anthropic.com/legal/aup), [OpenAI](https://openai.com/policies/usage-policies/), [Google](https://ai.google.dev/gemini-api/terms), [xAI](https://x.ai/legal/acceptable-use-policy) |
+| **Open-weight model licenses** | Llama 4's use policy prohibits "military, warfare, nuclear industries or applications." DeepSeek's original V2/V3 model license prohibits "military use in any way" (its later releases are MIT-licensed) | Check the license of every model *version* before it joins the roster. Exclude any whose license bars military applications unless the licensor confirms a game is fine. Sources: [Llama 4](https://www.llama.com/llama4/use-policy/), [DeepSeek V3](https://github.com/deepseek-ai/DeepSeek-V3/blob/main/LICENSE-MODEL) |
+| **Routing and gateways** | OpenRouter load-balances across hosts and precisions by default, and fallback settings can silently swap in a different model. A new OpenAI rule (effective 20 Nov 2026) reportedly requires approval for gateways that give third parties direct model access | For ranked play, call OpenAI directly, and ideally every closed model. On OpenRouter, pin one host (`order` + `allow_fallbacks: false`), filter `quantizations`, never use model fallback lists, and publish the serving host per match. [OpenRouter docs](https://github.com/OpenRouterTeam/docs/blob/main/guides/routing/provider-selection.mdx) |
+| **Trademarks** | Anthropic's guidelines allow its marks only as specifically permitted, with no implied sponsorship and nothing that could damage its reputation. DeepSeek's license forbids implying endorsement | Use plain-text model names only to identify competitors. No logos without written permission, a "not affiliated" disclaimer, and a factual tone (no mocking named brands). Keep lab names out of the product name, domain, and merch. [Anthropic guidelines](https://www.anthropic.com/legal/trademark-guidelines) |
+| **Publishing outputs** | No retrieved terms restrict publishing benchmark comparisons. Anthropic: customers own their outputs. OpenAI: don't present AI output as human-written; livestreams need clear AI labeling | Label all AI-generated content (transcripts, narration, clips). State in the open-data license that the logs aren't for training competing models. [Anthropic commercial terms](https://www.anthropic.com/legal/commercial-terms) |
+| **Chinese models** | A DHS order (reported 19 Oct 2026) bars federal civilian agencies from buying DeepSeek products. Related bills are pending; several states (e.g., Texas, New York, Virginia) ban DeepSeek on government devices; Zhipu has been on the US Entity List since January 2025. No private-sector ban found. First-party APIs process data in China | Send game data only, and prefer US-hosted inference for open-weight models. Get counsel before paying an Entity-Listed company directly. Keep government customers out of scope for anything built on these models. [PYMNTS](https://www.pymnts.com/news/artificial-intelligence/2026/dhs-bans-deepseek-across-federal-government-networks/) |
+| **Defense-sector customers** | Provider approvals (OpenAI's "national security" clause), procurement bans (DeepSeek), and designations: DoD labeled Anthropic a supply-chain risk in February 2026; Anthropic says commercial customers aren't affected, and litigation is ongoing | Keep B2B defense sales out of scope until counsel reviews. [Anthropic statement](https://www.anthropic.com/news/statement-comments-secretary-war) |
+| **Geopolitical and brand safety** | US-vs-China framing can read as propaganda and spook platforms and advertisers | Fictional nations for ranked play; fictional theater, places, and leaders for exhibitions; a narration style guide |
+| **Export controls (ITAR/EAR)** | Technical data about defense articles is controlled; public, budget-level information generally isn't | Public, budget-level data only; abstract ratings; never accept classified or controlled submissions; counsel before any defense work |
+| **Gambling** | Real-money wagering on outcomes is gambling under most state laws | Free-to-play predictions only; no paid entry with prizes without legal review |
+| **API cost runaway** | Long matches × many models × reasoning tokens | Prepaid credits, runner-enforced caps, a kill switch, spend alerts |
+| **Benchmark credibility** | Bias accusations, especially since Claude helped design the game | Frozen rules, open engine, confidence intervals, held-out scenarios, this disclosure, external review |
+| **Refusals and silent swaps** | Some models may refuse a war-game role; routers may substitute models | Fictional framing, staff-default fallback, refusal rates published separately, serving model and host logged per call |
+| **Prompt injection between generals** | Rival messages could try to hijack a model | Untrusted wrappers, sanitization, and a manipulation-resistance metric ([`AGENT_PROTOCOL.md`](AGENT_PROTOCOL.md) §8) |
+| **Privacy** (once there are accounts) | User data and bring-your-own API keys | Privacy policy and terms; keys never stored in plaintext; collect the minimum |
+
+**Dates to watch:** 12 Nov 2026 (Anthropic usage policy update), 20 Nov 2026 (OpenAI gateway rule), 1 Dec 2026 (a reported Google API price change).
 
 ## 15. Open decisions (with my recommendation)
 
@@ -283,13 +358,13 @@ _Pending: being filled in from current research on provider usage policies, term
 | 5 | Launch roster | 4 models or 8 | **4 for the MVP** (Claude, GPT, DeepSeek, Kimi), **6–8 for Season 1** |
 | 6 | Name | See §12 | **Decide after a trademark and domain check** |
 | 7 | Stack and hosting | TypeScript + Vercel + Neon, or an Azure stack | **TypeScript + Vercel + Neon** to start; Azure is fine if you prefer one Microsoft bill |
-| 8 | Season 1 API budget | — | **Set a hard cap** (see §10) and use prepaid credits so the cap is enforced by the providers too |
+| 8 | API budget | — | **$500 for MVP testing and a $2,500 cap for Season 1** (§10), enforced by the runner and by prepaid credits |
 | 9 | Licensing | Open or closed | **Open-source the engine** (Apache-2.0), publish data under CC BY 4.0, and keep held-out scenarios private |
 
 ## 16. Next steps
 
 1. **Review this plan** and answer the open decisions in §15.
-2. **Create API accounts with prepaid credits:** OpenRouter first; Anthropic, OpenAI, DeepSeek, and Moonshot direct accounts before Season 1. Prepaid balances act as hard spend caps.
+2. **Create API accounts with prepaid credits:** OpenRouter for open-weight models and quick tests; direct Anthropic and OpenAI accounts from day one; DeepSeek and Moonshot direct (or US-hosted inference) before Season 1. Prepaid balances act as hard spend caps.
 3. **Check the name:** USPTO trademark search (https://tmsearch.uspto.gov) plus a domain check.
 4. **Set up the dev machine (Windows, PowerShell):**
 

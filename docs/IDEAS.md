@@ -33,6 +33,7 @@ _Draft v0.1 · October 2026 · Priority tags: **MVP** (first build), **v1** (Sea
 | **Rules comprehension quiz** | Separates "didn't understand" from "bad strategy" | MVP |
 | **Confidence intervals** | Bootstrapped 95% CIs; no ranking claims inside overlapping intervals | MVP |
 | **`check_orders` staff tool** | Models can test a draft before submitting, which cuts invalid orders and repair loops | MVP |
+| **Published serving host** | Publish the exact inference host and precision for every match; no other arena does this | MVP |
 | **Held-out scenarios** | 30–50% of ranked scenarios stay private and rotate every season, so labs can't overfit | v1 |
 | **Name randomization** | Random nation, zone, and item names in ranked play, so models use the catalog instead of memorized real-world stats | v1 |
 | **`run_wargame` staff tool** | Lets a model test its plan against its own intel estimate. Rewards analysis and tool use | v1 |
@@ -47,7 +48,7 @@ _Draft v0.1 · October 2026 · Priority tags: **MVP** (first build), **v1** (Sea
 | Idea | What it adds | Priority |
 | --- | --- | --- |
 | **Sustainment trap** | Everything you own costs money every year. Overbuilding starves readiness | MVP |
-| **Lead times and multi-year funding** | A carrier ordered in Year 2 arrives around Year 9. Cancelling loses sunk cost | MVP |
+| **Lead times and multi-year funding** | A carrier ordered in Year 2 arrives around Year 12. Cancelling loses sunk cost | MVP |
 | **Industrial capacity and surge** | Shipyards and missile lines cap output; expansion takes years | MVP |
 | **Readiness vs. modernization** | The oldest dilemma in force planning | MVP |
 | **Drones and attritable mass** | Cheap drones vs. expensive interceptors: the cost-exchange problem | MVP |
@@ -62,6 +63,8 @@ _Draft v0.1 · October 2026 · Priority tags: **MVP** (first build), **v1** (Sea
 | **Budget politics** | Continuing resolutions, sequestration, wartime supplementals | v1 |
 | **Maintenance rotation** | One third deployed, one third training, one third in maintenance | v1 |
 | **AI-enabled command as a tech line** | AIs deciding how much to invest in military AI: meta, and good content | v1 |
+| **Prestige megaprojects** | Tempting flagship programs modeled on real ones. For example, CBO prices the planned BBG(X) battleship at $23.4B for the lead ship. Tests budget discipline and makes great drama | v1 |
+| **Big bets with wide estimates** | Programs whose cost estimates disagree wildly, as with Golden Dome (DoD $185B through 2035 vs. CBO $1.2T over 20 years). The engine draws the true cost from that range | v1 |
 | **Minor powers and basing rights** | Engine-run small nations; arms sales for influence; basing access that can be revoked | Later |
 | **Weather and seasons** | Typhoon season in the strait, Arctic ice, launch windows | Later |
 | **Technology espionage** | Intelligence spending can steal progress | Later |
@@ -82,7 +85,7 @@ _Draft v0.1 · October 2026 · Priority tags: **MVP** (first build), **v1** (Sea
 | **General's memoir and press conference** | After the match each model defends its choices: a short memoir plus three standard questions | v1 |
 | **Fight Night streams** | Live matches with commentary and visible reasoning summaries where terms allow | v1 |
 | **Auto episode kits** | Script outline, highlight list, and thumbnail prompts generated from each match | v1 |
-| **Hall of Fame / Hall of Shame** | Best plays and worst blunders ("built 14 carriers and couldn't crew them") | v1 |
+| **Hall of Fame / Blunder Reel** | Best plays and worst blunders ("built 14 carriers and couldn't crew them"). Keep the tone factual and never mock a named lab's brand (see PLAN §14) | v1 |
 | **Free-to-play predictions** | Season pick'em with points only, never money | Later |
 | **Embeddable match widget** | For press, blogs, and newsletters | Later |
 | **Viewer-voted events (unranked)** | The audience picks the next crisis card in show matches | Later |

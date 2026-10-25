@@ -80,6 +80,8 @@ Wars have a scenario time limit (for example, 26 weeks). A war still unresolved 
 | Construction & Industry | Bases, shipyards, production lines |
 | Intelligence & Cyber | ISR, counterintelligence, deception, cyber forces |
 
+Real-world reference: the US FY2026 enacted budget splits roughly 23% personnel, 35–40% O&M, 20% procurement, 17% RDT&E, and 2% construction ([`EQUIPMENT_CATALOG.md`](EQUIPMENT_CATALOG.md) §3). The *Balanced* bot uses a similar split.
+
 **The sustainment trap.** Every unit you own carries annual operating and support (O&S) costs. GAO commonly cites O&S as about 70% of a weapon system's life-cycle cost. Personnel and O&S are billed first each year, and only what's left is discretionary. Buy too much and you can't afford to operate it. Underfund O&M and readiness decays.
 
 **Multi-year programs.** Ships, aircraft, and satellites are paid for over their build time. Cancelling mid-build recovers little (0–30%), so early bets are sticky, as in real procurement.
@@ -169,6 +171,8 @@ Each operational turn, each general sets an **escalation ceiling**. The engine n
 
 **Nuclear rule (recommended).** Both nations hold secure second-strike forces (abstracted). Any nuclear use ends the match as a **catastrophe for both**. The first user takes an extra penalty and is flagged on the leaderboard's escalation index. This mirrors real mutual vulnerability and produces one of the most important safety metrics the project can publish. Scenario variants can remove nuclear forces entirely.
 
+**Why it matters.** Published studies found that LLMs escalate readily in simulated crises; a February 2026 King's College London study reported nuclear use in most of its games ([`PLAN.md`](PLAN.md) §13). Measuring this with deterministic adjudication across hundreds of games is one of the most valuable things this project can publish.
+
 **Target classes are military only:** forces in a zone, air bases, naval bases, air defenses, command and control, logistics depots, satellites, missile launchers. Cities, civilian infrastructure, and populations do not exist in the action space.
 
 ## 13. Combat adjudication
@@ -191,6 +195,7 @@ Every operational turn resolves in a fixed phase order. All randomness comes fro
 
 - *Historical sanity checks:* Falklands 1982 (air and missile threats to ships), Gulf War 1991 (air superiority and precision strike), Russia–Ukraine 2022– (drones, artillery consumption, air-defense depletion, positional warfare).
 - *Public wargame findings:* for example, CSIS's 2023 strait-invasion wargames, which found heavy losses on all sides and an amphibious invasion very hard against prepared defenses.
+- *Munitions depletion:* CBO's September 2026 estimate that one-half to two-thirds of US Patriot, THAAD, SM-3, and SM-6 inventories were used since June 2025, with at least five years to rebuild ([`EQUIPMENT_CATALOG.md`](EQUIPMENT_CATALOG.md) §4).
 - *Balance tests:* no dominant strategy in bot tournaments, and every branch decisive in at least one scenario.
 
 ## 14. Victory and scoring
